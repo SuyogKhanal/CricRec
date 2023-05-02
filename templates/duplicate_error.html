@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Error Page</title>
+    <style>
+      body {
+        background-color: #fff;
+      }
+      .error-box {
+        width: 700px;
+        height: 400px;
+        margin: auto;
+        margin-top: 100px;
+        background-color: #ff0000;
+        color: #000;
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+        line-height: 1.2em;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="error-box">
+      Error!
+      <br><br>
+      <span>You entered multiple names for</span>
+      <ul>
+        {% for players in dup_players %}
+          <li><span style='color:blue'>{{ players }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </body>
+</html>
