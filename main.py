@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template
-from t20 import player_recommendation as t20_p_rec
-from t20 import t20_players,team_recom as t20_team
-from odi import player_recommendation as odi_p_rec
-from odi import odi_players,team_recom as odi_team
-from test import player_recommendation as test_p_rec
-from test import test_players,team_recom as test_team
+from models.t20 import player_recommendation as t20_p_rec
+from models.t20 import t20_players,team_recom as t20_team
+from models.odi import player_recommendation as odi_p_rec
+from models.odi import odi_players,team_recom as odi_team
+from models.test import player_recommendation as test_p_rec
+from models.test import test_players,team_recom as test_team
 
 
 
