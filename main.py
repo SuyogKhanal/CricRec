@@ -5,7 +5,9 @@ from models.odi import player_recommendation as odi_p_rec
 from models.odi import odi_players,team_recom as odi_team
 from models.test import player_recommendation as test_p_rec
 from models.test import test_players,team_recom as test_team
-
+from models.t20 import player_in_team as t20_same_team
+from models.odi import player_in_team as odi_same_team
+from models.test import player_in_team as test_same_team
 
 
 
@@ -47,6 +49,7 @@ def predict_team():
         pl10 = str(request.form['player_10'])
         pl11 = str(request.form['player_11'])
         opp_team = [pl1,pl2,pl3,pl4,pl5,pl6,pl7,pl8,pl9,pl10,pl11]
+        
         if formats == 'Test':
             try:        
                 our_team = test_team(opp_team)
@@ -79,24 +82,47 @@ def predict_team():
 def predict():
     if request.method == 'POST':
         formats = request.form['format']
-        if formats == 'Test':
-            name = str(request.form['player_name'])
-            try:
-                pl_list = test_p_rec(name)
-            except AttributeError:
-                return render_template('error_handle.html')
-        elif formats == 'ODI':
-            name = str(request.form['player_name'])
-            try:
-                pl_list = odi_p_rec(name)
-            except AttributeError:
-                return render_template('error_handle.html')
+        team_ = request.form['within_team_country']
+
+        if team_ == 'No':
+            if formats == 'Test':
+                name = str(request.form['player_name'])
+                try:
+                    pl_list = test_p_rec(name)
+                except AttributeError:
+                    return render_template('error_handle.html')
+            elif formats == 'ODI':
+                name = str(request.form['player_name'])
+                try:
+                    pl_list = odi_p_rec(name)
+                except AttributeError:
+                    return render_template('error_handle.html')
+            else:
+                name = str(request.form['player_name'])
+                try:
+                    pl_list = t20_p_rec(name)
+                except AttributeError:
+                    return render_template('error_handle.html')
         else:
-            name = str(request.form['player_name'])
-            try:
-                pl_list = t20_p_rec(name)
-            except AttributeError:
-                return render_template('error_handle.html')
+            if formats == 'Test':
+                name = str(request.form['player_name'])
+                try:
+                    pl_list = test_same_team(name)
+                except AttributeError:
+                    return render_template('error_handle.html')
+            elif formats == 'ODI':
+                name = str(request.form['player_name'])
+                try:
+                    pl_list = odi_same_team(name)
+                except AttributeError:
+                    return render_template('error_handle.html')
+            else:
+                name = str(request.form['player_name'])
+                try:
+                    pl_list = t20_same_team(name)
+                except AttributeError:
+                    return render_template('error_handle.html')
+
     return render_template('result.html',pl_list=pl_list)
 
 
