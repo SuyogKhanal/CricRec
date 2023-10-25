@@ -9,12 +9,10 @@ Original file is located at
 
 import numpy as np
 import pandas as pd
-import scipy
 
 import matplotlib.pyplot as plt
 #import seaborn as sns
 
-import sklearn
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import silhouette_score
 
@@ -28,12 +26,6 @@ pd.set_option('display.max_columns', 100)
 
 df = pd.read_csv('cricket_player_stats.csv')
 
-df.head()
-
-df.isna().sum().max()
-
-df.columns
-
 df = df.drop(columns= ['BT_Test_M','BT_Test_Inn', 'BT_Test_NO', 'BT_Test_Runs', 'BT_Test_HS',
               'BT_Test_Avg', 'BT_Test_BF', 'BT_Test_SR', 'BT_Test_100', 'BT_Test_200',
               'BT_Test_50', 'BT_Test_4s', 'BT_Test_6s','BW_Test_M','BW_Test_Inn', 
@@ -45,52 +37,35 @@ df = df.drop(columns= ['BT_Test_M','BT_Test_Inn', 'BT_Test_NO', 'BT_Test_Runs', 
               'BW_T20I_B', 'BW_T20I_Runs', 'BW_T20I_Wkts','BW_T20I_BBM', 'BW_T20I_Econ', 
               'BW_T20I_Avg', 'BW_T20I_SR','BW_T20I_5W', 'BW_T20I_10W'])
 
-df.head()
 
 nan1 = df[df.isna().any(axis=1)]
-nan1
+
 
 df[['BW_ODI_Avg', 'BW_ODI_SR']] = df[['BW_ODI_Avg', 'BW_ODI_SR']].fillna(0)
 
-df.isna().sum().max()
 
 dobdf = df['date_of_birth'].str.extract(r'(\d{4})')
 
 dobdf = dobdf.fillna(0)
-dobdf.tail()
 
 df['year'] = dobdf.astype(int)
 
-df
-
-df.columns
-
 df.drop(['Unnamed: 0', 'date_of_birth'],axis=1,inplace=True)
 
-df.head()
 
 df1 = df[df['year']>=1986]
 
-df1.tail()
-
-df1.shape
-
-df1.info()
 
 print(f'Rows in DataFrame before split: {df1.shape[0]}')
 odi_cricket_playing_nations = ['Australia', 'England', 'Ireland','India', 'Pakistan', 'New Zealand', 'West Indies', 'South Africa', 'Sri Lanka', 'Afghanistan', 'Bangladesh', 'Zimbabwe']
 df1 = df1[df1['team'].isin(odi_cricket_playing_nations)]
-print(f'Rows in DataFrame after split: {df1.shape[0]}')
 
 df = df1
 
-df.head()
 
 df = df.loc[(df['BT_ODI_M']> 0) | (df['BW_ODI_M']> 0)]
 
-df.shape
 
-df['BT_ODI_SR'].describe()
 
 def boundary_rate(player):
     num_of_fours = player['BT_ODI_4s']
@@ -104,14 +79,11 @@ def boundary_rate(player):
 df['BT_ODI_BR'] = df.apply(lambda row: boundary_rate(row), axis=1)
 
 df2 = df[(np.abs(stats.zscore(df['BT_ODI_BR'])) > 3)]
-print(df2.shape)
 df2[["name", "year", "BT_ODI_M", "BT_ODI_Runs","team", "BT_ODI_BF", "BT_ODI_SR", "BT_ODI_BR"]]
 
 df.drop(df2.index,axis=0,inplace=True)
 
-df.shape
 
-df.columns
 
 t_df = df[['name', 'team', 'BT_ODI_M', 'BT_ODI_Inn', 'BT_ODI_NO', 'BT_ODI_Runs',
        'BT_ODI_HS', 'BT_ODI_Avg', 'BT_ODI_BF', 'BT_ODI_SR', 'BT_ODI_100',
@@ -119,13 +91,11 @@ t_df = df[['name', 'team', 'BT_ODI_M', 'BT_ODI_Inn', 'BT_ODI_NO', 'BT_ODI_Runs',
        'BW_ODI_B', 'BW_ODI_Runs', 'BW_ODI_Wkts', 'BW_ODI_BBM', 'BW_ODI_Econ',
        'BW_ODI_Avg', 'BW_ODI_SR', 'BW_ODI_5W', 'BW_ODI_10W','BT_ODI_BR']]
 
-t_df
 
 team_df = t_df.copy()
 
 t_df.drop(['team'],axis=1,inplace=True)
 
-t_df.head()
 
 def conversion(str):
     if str != '0':
@@ -148,9 +118,7 @@ def conversion(str):
 
 t_df['BW_ODI_BBM'] = t_df['BW_ODI_BBM'].apply(conversion)
 
-t_df.head()
 
-t_df.shape
 
 t_df['mor_cols'] = t_df['BT_ODI_NO']+ t_df['BT_ODI_Runs']+ t_df['BT_ODI_HS']+ t_df['BT_ODI_Avg']+\
                 t_df['BT_ODI_SR'] + t_df['BT_ODI_100']+ t_df['BT_ODI_200']+ t_df['BT_ODI_50']+\
@@ -160,25 +128,19 @@ t_df['less_cols'] = t_df['BW_ODI_Runs'] + t_df['BW_ODI_Econ'] + t_df['BW_ODI_Avg
 
 t_df['impact_col'] = np.sqrt(t_df['mor_cols']/t_df['less_cols'])
 
-t_df.head()
 
 df3 = t_df[(t_df['BT_ODI_Inn'] == 0) & (t_df['BW_ODI_Inn'] == 0)]
 
-df3
 
 t_df.drop(df3.index,axis=0,inplace=True)
 
-t_df
 
-t_df.shape
 
 t_df = t_df.replace([np.inf,np.nan],100)
 
-t_df
 
 t_df.drop(['mor_cols', 'less_cols'], axis=1, inplace=True)
 
-t_df.columns
 
 t_df_col = ['BT_ODI_NO', 'BT_ODI_Runs','BT_ODI_HS', 'BT_ODI_Avg', 
            'BT_ODI_BF', 'BT_ODI_SR', 'BT_ODI_100','BT_ODI_200', 
@@ -186,7 +148,6 @@ t_df_col = ['BT_ODI_NO', 'BT_ODI_Runs','BT_ODI_HS', 'BT_ODI_Avg',
            'BW_ODI_Runs', 'BW_ODI_Wkts', 'BW_ODI_BBM','BW_ODI_Econ', 
            'BW_ODI_Avg', 'BW_ODI_SR', 'BW_ODI_5W', 'BW_ODI_10W','BT_ODI_BR', 'impact_col']
 
-t_df.isna().sum().max()
 
 t_df = t_df[~t_df['name'].isin(['Aaron Finch','Eoin Morgan','Pragyan Ojha','Piyush Chawla','Karn Sharma','Cheteshwar Pujara','Sudeep Tyagi',
                                 'Saurabh Tiwary','Abhimanyu Mithun','Rahul Sharma','Junaid Khan',
